@@ -26,44 +26,45 @@ CREATE TYPE address (
 );
 
 CREATE TABLE users_by_name (
-  name text PRIMARY KEY,
+  user_name text PRIMARY KEY,
   address frozen<address>,
   payment_information map<text, frozen<payment_information>>
 ) WITH comment = 'Q1. Find users by name';
 
 -- Insert some dummy data.
-INSERT INTO users_by_name (name, address, payment_information) VALUES (
+INSERT INTO users_by_name (user_name, address, payment_information) VALUES (
   'user1',
   {street: 's1', city: 'c1', state_or_province: 'p1', postal_code: 'pc1', country: 'Greece'},
   {'my card': {payment_type: 'VISA', card_number: '111-111', expires: '2020-01-01', security_code: '1234'}});
 
-INSERT INTO users_by_name (name, address, payment_information) VALUES (
+INSERT INTO users_by_name (user_name, address, payment_information) VALUES (
   'user2',
   {street: 's2', city: 'c2', state_or_province: 'p2', postal_code: 'pc2', country: 'Germany'},
   {'A card': {payment_type: 'Master Card', card_number: '111-222', expires: '2017-01-01', security_code: '8888'}});
 
 -- Query
-SELECT * FROM users_by_name WHERE name = 'user1';
+SELECT * FROM users_by_name WHERE user_name = 'user1';
 
 
 
 
 -- Q2. Find songs by name.
-CREATE TABLE song (
-  name text PRIMARY KEY,
+CREATE TABLE song_by_name (
+  song_name text,
   artist text,
   album text,
   year smallint,
   genre text,
-  song_file blob
+  song_file blob,
+  PRIMARY KEY((song_name), artist)
 ) WITH comment = 'Q2. Find songs by name';
 
 -- Insert some dummy data.
-INSERT INTO song (name, artist, album, year, genre) VALUES ('song1', 'artist1', 'album1', 2016, 'classic');
-INSERT INTO song (name, artist, album, year, genre) VALUES ('song2', 'artist2', 'album2', 2016, 'pop');
+INSERT INTO song_by_name (song_name, artist, album, year, genre) VALUES ('song1', 'artist1', 'album1', 2016, 'classic');
+INSERT INTO song_by_name (song_name, artist, album, year, genre) VALUES ('song2', 'artist2', 'album2', 2016, 'pop');
 
 -- Query
-SELECT * FROM song WHERE name = 'song1';
+SELECT * FROM song WHERE song_name = 'song1';
 
 
 
@@ -72,59 +73,63 @@ SELECT * FROM song WHERE name = 'song1';
 CREATE TABLE users_and_songs (
   user_name text,
   song_name text,
+  artist text,
+  album text,
+  year smallint,
+  genre text,
   played_on timestamp,
   PRIMARY KEY (user_name, played_on)
 ) WITH comment = 'Q3. Find songs played by a user in reverse chronological order' AND CLUSTERING ORDER BY (played_on DESC);
 
 -- Insert some dummy data.
-INSERT INTO users_and_songs (user_name, song_name, played_on) VALUES ('user1', 'song1', '2016-07-09 16:00:00');
-INSERT INTO users_and_songs (user_name, song_name, played_on) VALUES ('user1', 'song4', '2016-07-08 13:00:00');
-INSERT INTO users_and_songs (user_name, song_name, played_on) VALUES ('user1', 'song15', '2014-07-09 16:00:00');
-INSERT INTO users_and_songs (user_name, song_name, played_on) VALUES ('user1', 'song112', '2012-07-09 16:00:00');
-INSERT INTO users_and_songs (user_name, song_name, played_on) VALUES ('user1', 'song56', '2016-07-09 13:00:00');
+INSERT INTO users_and_songs (user_name, song_name, artist, album, year, genre, played_on) VALUES ('user1', 'song1', 'artist1', 'album1', 2015, 'pop', '2016-07-09 16:00:00');
+INSERT INTO users_and_songs (user_name, song_name, artist, album, year, genre, played_on) VALUES ('user1', 'song4', 'artist1', 'album1', 2015, 'pop', '2016-07-08 13:00:00');
+INSERT INTO users_and_songs (user_name, song_name, artist, album, year, genre, played_on) VALUES ('user1', 'song15', 'artist2', 'album2', 2014, 'rock', '2014-07-09 16:00:00');
+INSERT INTO users_and_songs (user_name, song_name, artist, album, year, genre, played_on) VALUES ('user1', 'song112', 'artist3', 'album4', 2015, 'classic', '2012-07-09 16:00:00');
+INSERT INTO users_and_songs (user_name, song_name, artist, album, year, genre, played_on) VALUES ('user1', 'song56', 'artist1', 'album5', 2013, 'jazz', '2016-07-09 13:00:00');
 
 -- Query
-SELECT * FROM users_and_songs WHERE user_name = 'user1';
+SELECT song_name, artist, album, year, genre, played_on FROM users_and_songs WHERE user_name = 'user1';
 
 
 
 
 -- Q4. Find a playlist by its name.
-CREATE TABLE playlist (
-  name text PRIMARY KEY,
+CREATE TABLE playlist_by_name (
+  playlist_name text PRIMARY KEY,
   description text,
   genre text,
-  username text
+  user_name text
 ) WITH comment = 'Q4. Find playlist by name';
 
 -- Insert some dummy data.
-INSERT INTO playlist (name, description, genre, username) VALUES ('playlist1', 'Party music', 'pop', 'user1');
-INSERT INTO playlist (name, description, genre, username) VALUES ('playlist2', 'Classic music for studying', 'classic', 'user23');
+INSERT INTO playlist_by_name (playlist_name, description, genre, user_name) VALUES ('playlist1', 'Party music', 'pop', 'user1');
+INSERT INTO playlist_by_name (playlist_name, description, genre, user_name) VALUES ('playlist2', 'Classic music for studying', 'classic', 'user23');
 
 -- Query
-SELECT * FROM playlist WHERE name = 'playlist1';
+SELECT * FROM playlist_by_name WHERE playlist_name = 'playlist1';
 
 
 
 
 -- Q5. Search for a playlist by its genre.
-CREATE INDEX ON playlist (genre);
+CREATE INDEX ON playlist_by_name (genre);
 
 -- Query
-SELECT * FROM playlist WHERE genre = 'classic';
+SELECT * FROM playlist_by_name WHERE genre = 'classic';
 
 
 
 
 -- Q6. Search for a playlist by its creator.
 CREATE MATERIALIZED VIEW playlist_by_creator
-AS SELECT name, description, genre, username
-FROM playlist
-WHERE name IS NOT NULL AND username IS NOT NULL
-PRIMARY KEY ((username), name);
+AS SELECT playlist_name, description, genre, user_name
+FROM playlist_by_name
+WHERE playlist_name IS NOT NULL AND user_name IS NOT NULL
+PRIMARY KEY ((user_name), playlist_name);
 
 -- Query
-SELECT * FROM playlist_by_creator WHERE username = 'user1';
+SELECT * FROM playlist_by_creator WHERE user_name = 'user1';
 
 
 
