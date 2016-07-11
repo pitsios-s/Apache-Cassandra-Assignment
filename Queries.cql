@@ -1,5 +1,6 @@
 -- First of all, create the neccessary keyspace.
-CREATE KEYSPACE assignment WITH replication = {
+DROP KEYSPACE IF EXISTS assignment;
+CREATE KEYSPACE IF NOT EXISTS assignment WITH replication = {
   'class': 'SimpleStrategy',
   'replication_factor': 3
 };
@@ -10,14 +11,14 @@ USE assignment;
 
 
 -- Q1. Find Users by name.
-CREATE TYPE payment_information (
+CREATE TYPE IF NOT EXISTS payment_information (
   payment_type text,
   card_number text,
   expires date,
   security_code text
 );
 
-CREATE TYPE address (
+CREATE TYPE IF NOT EXISTS address (
   street text,
   city text,
   state_or_province text,
@@ -25,7 +26,7 @@ CREATE TYPE address (
   country text
 );
 
-CREATE TABLE users_by_name (
+CREATE TABLE IF NOT EXISTS users_by_name (
   user_name text PRIMARY KEY,
   address frozen<address>,
   payment_information map<text, frozen<payment_information>>
@@ -49,7 +50,7 @@ SELECT * FROM users_by_name WHERE user_name = 'user1';
 
 
 -- Q2. Find songs by name.
-CREATE TABLE song_by_name (
+CREATE TABLE IF NOT EXISTS song_by_name (
   song_name text,
   artist text,
   album text,
@@ -70,7 +71,7 @@ SELECT * FROM song_by_name WHERE song_name = 'song1';
 
 
 -- Q3. Songs played by a user.
-CREATE TABLE users_and_songs (
+CREATE TABLE IF NOT EXISTS users_and_songs (
   user_name text,
   song_name text,
   artist text,
@@ -95,7 +96,7 @@ SELECT song_name, artist, album, year, genre, played_on FROM users_and_songs WHE
 
 
 -- Q4. Find a playlist by its name.
-CREATE TABLE playlist_by_name (
+CREATE TABLE IF NOT EXISTS playlist_by_name (
   playlist_name text PRIMARY KEY,
   description text,
   genre text,
@@ -113,7 +114,7 @@ SELECT * FROM playlist_by_name WHERE playlist_name = 'playlist1';
 
 
 -- Q5. Search for a playlist by its genre.
-CREATE INDEX ON playlist_by_name (genre);
+CREATE INDEX IF NOT EXISTS ON playlist_by_name (genre);
 
 -- Query
 SELECT * FROM playlist_by_name WHERE genre = 'classic';
@@ -122,7 +123,7 @@ SELECT * FROM playlist_by_name WHERE genre = 'classic';
 
 
 -- Q6. Search for a playlist by its creator.
-CREATE MATERIALIZED VIEW playlist_by_creator
+CREATE MATERIALIZED VIEW IF NOT EXISTS playlist_by_creator
 AS SELECT playlist_name, description, genre, user_name
 FROM playlist_by_name
 WHERE playlist_name IS NOT NULL AND user_name IS NOT NULL
@@ -135,7 +136,7 @@ SELECT * FROM playlist_by_creator WHERE user_name = 'user1';
 
 
 -- Q7. Find all the followers of a specific playlist.
-CREATE TABLE playlist_follower (
+CREATE TABLE IF NOT EXISTS playlist_follower (
   playlist_name text,
   follower_name text,
   PRIMARY KEY((playlist_name), follower_name)
@@ -160,7 +161,7 @@ SELECT follower_name FROM playlist_follower WHERE playlist_name = 'playlist3';
 
 
 -- Q8. Find all the followers of a user.
-CREATE TABLE user_follower (
+CREATE TABLE IF NOT EXISTS user_follower (
   user_name text,
   follower_name text,
   PRIMARY KEY ((user_name), follower_name)
@@ -185,7 +186,7 @@ SELECT follower_name FROM user_follower WHERE user_name = 'user3';
 
 
 -- Q9. Find the songs contained in a playlist.
-CREATE TABLE songs_by_playlist (
+CREATE TABLE IF NOT EXISTS songs_by_playlist (
   playlist_name text,
   song_name text,
   artist text,
@@ -219,7 +220,7 @@ SELECT song_name, artist, album, year, genre FROM songs_by_playlist WHERE playli
 
 
 -- Q10. Find how many times a playlist has been played.
-CREATE TABLE playlist_counter (
+CREATE TABLE IF NOT EXISTS playlist_counter (
   playlist_name text PRIMARY KEY,
   played counter
 ) WITH comment = 'Q10. Number of times a playlist has been played.';
@@ -243,7 +244,7 @@ SELECT played FROM playlist_counter WHERE playlist_name = 'playlist1';
 
 
 -- Q11. How many times a song has been played.
-CREATE TABLE song_counter (
+CREATE TABLE IF NOT EXISTS song_counter (
   song_name text PRIMARY KEY,
   played counter
 ) WITH comment = 'Q11. How many times a song has been played';
@@ -270,7 +271,7 @@ SELECT * FROM song_counter WHERE song_name = 'song1';
 -- 8. no inner selects (need hive or spark sql-> http://stackoverflow.com/questions/27460129/nested-query-not-working-in-cassandra)
 -- 9. Can not sort counter columns
 -- 10. Data were splitted using playlist_name as key.
-CREATE TABLE playlist_counter_2 (
+CREATE TABLE IF NOT EXISTS playlist_counter_2 (
   hash_prefix bigint,
   playlist_name text,
   played bigint,
@@ -295,7 +296,7 @@ SELECT playlist_name, played FROM playlist_counter_2;
 
 
 -- Q13. List Users in decreasing popularity.
-CREATE TABLE user_follower_count (
+CREATE TABLE IF NOT EXISTS user_follower_count (
   hash_prefix bigint,
   user_name text,
   followers bigint,
