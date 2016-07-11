@@ -64,7 +64,7 @@ INSERT INTO song_by_name (song_name, artist, album, year, genre) VALUES ('song1'
 INSERT INTO song_by_name (song_name, artist, album, year, genre) VALUES ('song2', 'artist2', 'album2', 2016, 'pop');
 
 -- Query
-SELECT * FROM song WHERE song_name = 'song1';
+SELECT * FROM song_by_name WHERE song_name = 'song1';
 
 
 
@@ -78,7 +78,7 @@ CREATE TABLE users_and_songs (
   year smallint,
   genre text,
   played_on timestamp,
-  PRIMARY KEY (user_name, played_on)
+  PRIMARY KEY ((user_name), played_on)
 ) WITH comment = 'Q3. Find songs played by a user in reverse chronological order' AND CLUSTERING ORDER BY (played_on DESC);
 
 -- Insert some dummy data.
@@ -137,24 +137,24 @@ SELECT * FROM playlist_by_creator WHERE user_name = 'user1';
 -- Q7. Find all the followers of a specific playlist.
 CREATE TABLE playlist_follower (
   playlist_name text,
-  user_name text,
-  PRIMARY KEY((playlist_name), user_name)
+  follower_name text,
+  PRIMARY KEY((playlist_name), follower_name)
 ) WITH comment = 'Find the followers of a playlist';
 
 -- Insert some dummy data.
-INSERT INTO playlist_follower (playlist_name, user_name) VALUES ('playlist1', 'user1');
-INSERT INTO playlist_follower (playlist_name, user_name) VALUES ('playlist1', 'user2');
-INSERT INTO playlist_follower (playlist_name, user_name) VALUES ('playlist1', 'user3');
-INSERT INTO playlist_follower (playlist_name, user_name) VALUES ('playlist2', 'user11');
-INSERT INTO playlist_follower (playlist_name, user_name) VALUES ('playlist2', 'user12');
-INSERT INTO playlist_follower (playlist_name, user_name) VALUES ('playlist3', 'user1');
-INSERT INTO playlist_follower (playlist_name, user_name) VALUES ('playlist3', 'user1');
-INSERT INTO playlist_follower (playlist_name, user_name) VALUES ('playlist3', 'user50');
-INSERT INTO playlist_follower (playlist_name, user_name) VALUES ('playlist3', 'user60');
-INSERT INTO playlist_follower (playlist_name, user_name) VALUES ('playlist5', 'user100');
+INSERT INTO playlist_follower (playlist_name, follower_name) VALUES ('playlist1', 'user1');
+INSERT INTO playlist_follower (playlist_name, follower_name) VALUES ('playlist1', 'user2');
+INSERT INTO playlist_follower (playlist_name, follower_name) VALUES ('playlist1', 'user3');
+INSERT INTO playlist_follower (playlist_name, follower_name) VALUES ('playlist2', 'user11');
+INSERT INTO playlist_follower (playlist_name, follower_name) VALUES ('playlist2', 'user12');
+INSERT INTO playlist_follower (playlist_name, follower_name) VALUES ('playlist3', 'user1');
+INSERT INTO playlist_follower (playlist_name, follower_name) VALUES ('playlist3', 'user1');
+INSERT INTO playlist_follower (playlist_name, follower_name) VALUES ('playlist3', 'user50');
+INSERT INTO playlist_follower (playlist_name, follower_name) VALUES ('playlist3', 'user60');
+INSERT INTO playlist_follower (playlist_name, follower_name) VALUES ('playlist5', 'user100');
 
 -- Query
-SELECT user_name FROM playlist_follower WHERE playlist_name = 'playlist3';
+SELECT follower_name FROM playlist_follower WHERE playlist_name = 'playlist3';
 
 
 
@@ -188,28 +188,32 @@ SELECT follower_name FROM user_follower WHERE user_name = 'user3';
 CREATE TABLE songs_by_playlist (
   playlist_name text,
   song_name text,
-  PRIMARY KEY ((playlist_name), song_name)
-) WITH comment = 'Q9. Find songs in a playlist' AND CLUSTERING ORDER BY (song_name ASC);
+  artist text,
+  album text,
+  year smallint,
+  genre text,
+  PRIMARY KEY ((playlist_name), song_name, artist)
+) WITH comment = 'Q9. Find songs in a playlist' AND CLUSTERING ORDER BY (song_name ASC, artist ASC);
 
 -- Insert some dummy data.
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist1', 'song10');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist1', 'song4');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist1', 'song2');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist1', 'song27');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist1', 'song30');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist2', 'song10');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist2', 'song12');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist2', 'song13');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist2', 'song13');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist2', 'song14');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist3', 'song5');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist3', 'song7');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist3', 'song3');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist3', 'song9');
-INSERT INTO songs_by_playlist (playlist_name, song_name) VALUES ('playlist3', 'song1');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist1', 'song10', 'artist1', 'album1', 2015, 'pop');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist1', 'song4', 'artist2', 'album4', 2013, 'country');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist1', 'song2', 'artist2', 'album4', 2013, 'country');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist1', 'song27', 'artist5', 'album10', 2016, 'electro');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist1', 'song30', 'artist5', 'album10', 2016, 'electro');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist2', 'song10', 'artist1', 'album1', 2015, 'pop');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist27', 'song12', 'artist5', 'album10', 2016, 'electro');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist2', 'song13', 'artist8', 'album20', 2014, 'house');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist2', 'song14', 'artist8', 'album20', 2014, 'house');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist2', 'song15', 'artist8', 'album20', 2014, 'house');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist3', 'song5', 'artist2', 'album4', 2013, 'country');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist3', 'song7', 'artist20', 'album30', 2010, 'metal');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist3', 'song3', 'artist2', 'album4', 2013, 'country');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist3', 'song9', 'artist20', 'album30', 2010, 'metal');
+INSERT INTO songs_by_playlist (playlist_name, song_name, artist, album, year, genre) VALUES ('playlist3', 'song1', 'artist21', 'album40', 2012, 'funk');
 
 -- Query.
-SELECT song_name FROM songs_by_playlist WHERE playlist_name = 'playlist3';
+SELECT song_name, artist, album, year, genre FROM songs_by_playlist WHERE playlist_name = 'playlist3';
 
 
 
