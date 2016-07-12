@@ -50,7 +50,7 @@ SELECT * FROM users_by_name WHERE user_name = 'user1';
 
 
 -- Q2. Find songs by name.
-CREATE TABLE IF NOT EXISTS song_by_name (
+CREATE TABLE IF NOT EXISTS songs_by_name (
   song_name text,
   artist text,
   album text,
@@ -61,11 +61,11 @@ CREATE TABLE IF NOT EXISTS song_by_name (
 ) WITH comment = 'Q2. Find songs by name';
 
 -- Insert some dummy data.
-INSERT INTO song_by_name (song_name, artist, album, year, genre) VALUES ('song1', 'artist1', 'album1', 2016, 'classic');
-INSERT INTO song_by_name (song_name, artist, album, year, genre) VALUES ('song2', 'artist2', 'album2', 2016, 'pop');
+INSERT INTO songs_by_name (song_name, artist, album, year, genre) VALUES ('song1', 'artist1', 'album1', 2016, 'classic');
+INSERT INTO songs_by_name (song_name, artist, album, year, genre) VALUES ('song2', 'artist2', 'album2', 2016, 'pop');
 
 -- Query
-SELECT * FROM song_by_name WHERE song_name = 'song1';
+SELECT * FROM songs_by_name WHERE song_name = 'song1';
 
 
 
@@ -96,7 +96,7 @@ SELECT song_name, artist, album, year, genre, played_on FROM users_and_songs WHE
 
 
 -- Q4. Find a playlist by its name.
-CREATE TABLE IF NOT EXISTS playlist_by_name (
+CREATE TABLE IF NOT EXISTS playlists_by_name (
   playlist_name text PRIMARY KEY,
   description text,
   genre text,
@@ -104,33 +104,33 @@ CREATE TABLE IF NOT EXISTS playlist_by_name (
 ) WITH comment = 'Q4. Find playlist by name';
 
 -- Insert some dummy data.
-INSERT INTO playlist_by_name (playlist_name, description, genre, user_name) VALUES ('playlist1', 'Party music', 'pop', 'user1');
-INSERT INTO playlist_by_name (playlist_name, description, genre, user_name) VALUES ('playlist2', 'Classic music for studying', 'classic', 'user23');
+INSERT INTO playlists_by_name (playlist_name, description, genre, user_name) VALUES ('playlist1', 'Party music', 'pop', 'user1');
+INSERT INTO playlists_by_name (playlist_name, description, genre, user_name) VALUES ('playlist2', 'Classic music for studying', 'classic', 'user23');
 
 -- Query
-SELECT * FROM playlist_by_name WHERE playlist_name = 'playlist1';
+SELECT * FROM playlists_by_name WHERE playlist_name = 'playlist1';
 
 
 
 
 -- Q5. Search for a playlist by its genre.
-CREATE INDEX IF NOT EXISTS ON playlist_by_name (genre);
+CREATE INDEX IF NOT EXISTS ON playlists_by_name (genre);
 
 -- Query
-SELECT * FROM playlist_by_name WHERE genre = 'classic';
+SELECT * FROM playlists_by_name WHERE genre = 'classic';
 
 
 
 
 -- Q6. Search for a playlist by its creator.
-CREATE MATERIALIZED VIEW IF NOT EXISTS playlist_by_creator
+CREATE MATERIALIZED VIEW IF NOT EXISTS playlists_by_creator
 AS SELECT playlist_name, description, genre, user_name
-FROM playlist_by_name
+FROM playlists_by_name
 WHERE playlist_name IS NOT NULL AND user_name IS NOT NULL
 PRIMARY KEY ((user_name), playlist_name);
 
 -- Query
-SELECT * FROM playlist_by_creator WHERE user_name = 'user1';
+SELECT * FROM playlists_by_creator WHERE user_name = 'user1';
 
 
 
@@ -260,17 +260,6 @@ SELECT * FROM song_counter WHERE song_name = 'song1';
 
 
 -- Q12. List playlists in decreasing popularity.
--- Problems
--- 1. Counter table
--- 2. cassandra limitations
--- 3. can not create MATERIALIZED
--- 4. new table and copt contents
--- 5. copied rows do not have ordering
--- 6. order by need where =  in primary KEY
--- 7. no wildcards
--- 8. no inner selects (need hive or spark sql-> http://stackoverflow.com/questions/27460129/nested-query-not-working-in-cassandra)
--- 9. Can not sort counter columns
--- 10. Data were splitted using playlist_name as key.
 CREATE TABLE IF NOT EXISTS playlist_counter_2 (
   hash_prefix bigint,
   playlist_name text,
